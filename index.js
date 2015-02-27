@@ -6,6 +6,10 @@ var cond = _interopRequire(require("fj-cond"));
 
 var always = _interopRequire(require("fj-always"));
 
+var ifElse = _interopRequire(require("fj-ifelse"));
+
+var typeOf = _interopRequire(require("fj-typeof"));
+
 var curry2 = require("fj-curry").curry2;
 
 
@@ -15,6 +19,7 @@ var is = function (val) {
     return !!val;
   };
 };
+var isObject = typeOf("object");
 
 var HttpRequest = cond([[is(window.XMLHttpRequest), function () {
   return function () {
@@ -29,8 +34,14 @@ var HttpRequest = cond([[is(window.XMLHttpRequest), function () {
 var _ajax = function (url, callback) {
   var httpRequest = HttpRequest();
 
+  var options = ifElse(isObject, function (obj) {
+    return obj;
+  }, function (url) {
+    return { url: url, method: "GET" };
+  })(url);
+
   httpRequest.onreadystatechange = callback;
-  httpRequest.open("GET", url);
+  httpRequest.open(options.method, options.url);
   httpRequest.send();
 };
 
